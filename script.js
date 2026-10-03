@@ -2,28 +2,15 @@
    SHOPSTYLE - FINAL JAVASCRIPT
 ===================================================== */
 
-
-/* =====================================================
-   DATA
-===================================================== */
-
-let cart =
-    JSON.parse(localStorage.getItem("shopStyleCart")) || [];
-
-let wishlist =
-    JSON.parse(localStorage.getItem("shopStyleWishlist")) || [];
-
-let loggedUser =
-    JSON.parse(localStorage.getItem("shopStyleUser")) || null;
-
+let cart = JSON.parse(localStorage.getItem("shopStyleCart")) || [];
+let wishlist = JSON.parse(localStorage.getItem("shopStyleWishlist")) || [];
+let loggedUser = JSON.parse(localStorage.getItem("shopStyleUser")) || null;
 let currentCategory = "all";
-
-let userBudget =
-    Number(localStorage.getItem("shopStyleBudget")) || 0;
+let userBudget = Number(localStorage.getItem("shopStyleBudget")) || 0;
 
 
 /* =====================================================
-   PRODUCT DATA
+   PRODUCTS
 ===================================================== */
 
 const products = {
@@ -81,7 +68,123 @@ const products = {
         price: 399,
         category: "home"
     }
+};
 
+
+/* =====================================================
+   PRICE COMPARISON DATA
+   DEMO / SAMPLE PRICES
+===================================================== */
+
+const comparisonData = {
+
+    "Designer Saree": {
+        shopstyle: 799,
+        amazon: 749,
+        flipkart: 829,
+
+        amazonUrl:
+            "https://www.amazon.in/s?k=Designer+Saree",
+
+        flipkartUrl:
+            "https://www.flipkart.com/search?q=Designer%20Saree"
+    },
+
+    "Women’s Kurti": {
+        shopstyle: 599,
+        amazon: 649,
+        flipkart: 579,
+
+        amazonUrl:
+            "https://www.amazon.in/s?k=Women%27s+Kurti",
+
+        flipkartUrl:
+            "https://www.flipkart.com/search?q=Women%27s%20Kurti"
+    },
+
+    "Casual Shoes": {
+        shopstyle: 999,
+        amazon: 949,
+        flipkart: 899,
+
+        amazonUrl:
+            "https://www.amazon.in/s?k=Casual+Shoes",
+
+        flipkartUrl:
+            "https://www.flipkart.com/search?q=Casual%20Shoes"
+    },
+
+    "Stylish Handbag": {
+        shopstyle: 699,
+        amazon: 729,
+        flipkart: 649,
+
+        amazonUrl:
+            "https://www.amazon.in/s?k=Stylish+Handbag",
+
+        flipkartUrl:
+            "https://www.flipkart.com/search?q=Stylish%20Handbag"
+    },
+
+    "Smart Watch": {
+        shopstyle: 1499,
+        amazon: 1399,
+        flipkart: 1449,
+
+        amazonUrl:
+            "https://www.amazon.in/s?k=Smart+Watch",
+
+        flipkartUrl:
+            "https://www.flipkart.com/search?q=Smart%20Watch"
+    },
+
+    "Beauty Kit": {
+        shopstyle: 499,
+        amazon: 519,
+        flipkart: 469,
+
+        amazonUrl:
+            "https://www.amazon.in/s?k=Beauty+Kit",
+
+        flipkartUrl:
+            "https://www.flipkart.com/search?q=Beauty%20Kit"
+    },
+
+    "Wireless Headphones": {
+        shopstyle: 899,
+        amazon: 849,
+        flipkart: 929,
+
+        amazonUrl:
+            "https://www.amazon.in/s?k=Wireless+Headphones",
+
+        flipkartUrl:
+            "https://www.flipkart.com/search?q=Wireless%20Headphones"
+    },
+
+    "Fashion Jewellery": {
+        shopstyle: 299,
+        amazon: 279,
+        flipkart: 319,
+
+        amazonUrl:
+            "https://www.amazon.in/s?k=Fashion+Jewellery",
+
+        flipkartUrl:
+            "https://www.flipkart.com/search?q=Fashion%20Jewellery"
+    },
+
+    "Kitchen Storage Set": {
+        shopstyle: 399,
+        amazon: 429,
+        flipkart: 379,
+
+        amazonUrl:
+            "https://www.amazon.in/s?k=Kitchen+Storage+Set",
+
+        flipkartUrl:
+            "https://www.flipkart.com/search?q=Kitchen%20Storage%20Set"
+    }
 };
 
 
@@ -91,8 +194,7 @@ const products = {
 
 function showToast(message) {
 
-    const toast =
-        document.getElementById("toast");
+    const toast = document.getElementById("toast");
 
     if (!toast) return;
 
@@ -100,25 +202,21 @@ function showToast(message) {
 
     toast.classList.add("show");
 
-    setTimeout(function () {
-
+    setTimeout(() => {
         toast.classList.remove("show");
-
     }, 2200);
 }
 
 
 /* =====================================================
-   LOGIN ACCESS
+   LOGIN CHECK
 ===================================================== */
 
 function requireLogin() {
 
     if (!loggedUser) {
 
-        showToast(
-            "Please login first to continue."
-        );
+        showToast("Please login first to continue.");
 
         openLogin();
 
@@ -130,7 +228,7 @@ function requireLogin() {
 
 
 /* =====================================================
-   NAVIGATION
+   SECTION NAVIGATION
 ===================================================== */
 
 function showSection(sectionId) {
@@ -140,7 +238,8 @@ function showSection(sectionId) {
         "budget",
         "account",
         "wishlist",
-        "cart"
+        "cart",
+        "comparison"
     ];
 
     if (
@@ -166,6 +265,9 @@ function showSection(sectionId) {
         behavior: "smooth"
     });
 
+    if (sectionId === "comparison") {
+        populateComparisonProducts();
+    }
 }
 
 
@@ -174,18 +276,12 @@ function startShopping() {
     if (!requireLogin()) return;
 
     showSection("products");
-
 }
 
-
-/* =====================================================
-   HOME
-===================================================== */
 
 function scrollToProducts() {
 
     startShopping();
-
 }
 
 
@@ -201,9 +297,8 @@ function searchProducts() {
     if (!searchInput) return;
 
     const search =
-        searchInput.value
-            .toLowerCase()
-            .trim();
+        searchInput.value.toLowerCase().trim();
+
 
     if (!loggedUser && search !== "") {
 
@@ -214,36 +309,34 @@ function searchProducts() {
         return;
     }
 
-    const productCards =
-        document.querySelectorAll(".product-card");
 
-    productCards.forEach(function (product) {
+    document
+        .querySelectorAll(".product-card")
+        .forEach(product => {
 
-        const name =
-            product.dataset.name.toLowerCase();
+            const name =
+                product.dataset.name.toLowerCase();
 
-        const category =
-            product.dataset.category;
+            const category =
+                product.dataset.category;
 
-        const matchesSearch =
-            name.includes(search);
+            const matchesSearch =
+                name.includes(search);
 
-        const matchesCategory =
-            currentCategory === "all" ||
-            category === currentCategory;
+            const matchesCategory =
+                currentCategory === "all" ||
+                category === currentCategory;
 
-        product.style.display =
-            matchesSearch && matchesCategory
-                ? "block"
-                : "none";
-
-    });
-
+            product.style.display =
+                matchesSearch && matchesCategory
+                    ? "block"
+                    : "none";
+        });
 }
 
 
 /* =====================================================
-   FILTER
+   CATEGORY FILTER
 ===================================================== */
 
 function filterProducts(category) {
@@ -252,22 +345,20 @@ function filterProducts(category) {
 
     currentCategory = category;
 
-    const productCards =
-        document.querySelectorAll(".product-card");
 
-    productCards.forEach(function (product) {
+    document
+        .querySelectorAll(".product-card")
+        .forEach(product => {
 
-        const matches =
-            category === "all" ||
-            product.dataset.category === category;
+            product.style.display =
+                category === "all" ||
+                product.dataset.category === category
+                    ? "block"
+                    : "none";
+        });
 
-        product.style.display =
-            matches ? "block" : "none";
-
-    });
 
     showSection("products");
-
 }
 
 
@@ -277,15 +368,14 @@ function showAllProducts() {
 
     currentCategory = "all";
 
-    const productCards =
-        document.querySelectorAll(".product-card");
 
-    productCards.forEach(function (product) {
+    document
+        .querySelectorAll(".product-card")
+        .forEach(product => {
 
-        product.style.display = "block";
+            product.style.display = "block";
 
-    });
-
+        });
 }
 
 
@@ -297,36 +387,54 @@ function addCart(name, price) {
 
     if (!requireLogin()) return;
 
-    const product =
-        getProduct(name);
+
+    const product = getProduct(name);
 
     if (!product) return;
 
 
     const existing =
-        cart.find(function (item) {
-
-            return item.name === name;
-
-        });
+        cart.find(item => item.name === name);
 
 
     if (existing) {
+
+        if (
+            userBudget > 0 &&
+            calculateCartTotal() + Number(price) >
+            userBudget
+        ) {
+
+            showToast(
+                "This would exceed your budget."
+            );
+
+            return;
+        }
 
         existing.quantity++;
 
     } else {
 
+        if (
+            userBudget > 0 &&
+            calculateCartTotal() + Number(price) >
+            userBudget
+        ) {
+
+            showToast(
+                "This product exceeds your remaining budget."
+            );
+
+            return;
+        }
+
+
         cart.push({
-
             name: name,
-
             price: Number(price),
-
             quantity: 1
-
         });
-
     }
 
 
@@ -339,7 +447,6 @@ function addCart(name, price) {
     showToast(
         name + " added to cart 🛒"
     );
-
 }
 
 
@@ -349,7 +456,6 @@ function saveCart() {
         "shopStyleCart",
         JSON.stringify(cart)
     );
-
 }
 
 
@@ -368,45 +474,41 @@ function updateCart() {
         document.getElementById("total-price");
 
 
-    if (!cartList) return;
-
-
     let items = 0;
 
     let total = 0;
 
 
-    cart.forEach(function (item) {
+    cart.forEach(item => {
 
-        items += item.quantity;
+        items += Number(item.quantity);
 
         total +=
-            item.price *
-            item.quantity;
+            Number(item.price) *
+            Number(item.quantity);
 
     });
 
 
     if (cartCount) {
-
         cartCount.textContent = items;
-
     }
 
 
     if (totalItems) {
-
         totalItems.textContent = items;
-
     }
 
 
     if (totalPrice) {
 
         totalPrice.textContent =
+            "₹" +
             total.toLocaleString("en-IN");
-
     }
+
+
+    if (!cartList) return;
 
 
     if (cart.length === 0) {
@@ -417,35 +519,36 @@ function updateCart() {
         updateBudget();
 
         return;
-
     }
 
 
     cartList.innerHTML = "";
 
 
-    cart.forEach(function (item, index) {
+    cart.forEach((item, index) => {
 
         const div =
             document.createElement("div");
 
-        div.className =
-            "cart-item";
+        div.className = "cart-item";
 
 
         const subtotal =
-            item.price *
-            item.quantity;
+            Number(item.price) *
+            Number(item.quantity);
 
 
         div.innerHTML = `
 
             <div>
 
-                <h3>${item.name}</h3>
+                <h3>
+                    ${item.name}
+                </h3>
 
                 <p>
-                    ₹${item.price.toLocaleString("en-IN")}
+                    ₹${Number(item.price)
+                        .toLocaleString("en-IN")}
                 </p>
 
             </div>
@@ -454,7 +557,8 @@ function updateCart() {
             <div class="quantity">
 
                 <button
-                    onclick="decreaseQuantity(${index})">
+                    onclick="decreaseQuantity(${index})"
+                >
                     −
                 </button>
 
@@ -463,7 +567,8 @@ function updateCart() {
                 </strong>
 
                 <button
-                    onclick="increaseQuantity(${index})">
+                    onclick="increaseQuantity(${index})"
+                >
                     +
                 </button>
 
@@ -477,7 +582,8 @@ function updateCart() {
 
             <button
                 class="remove-btn"
-                onclick="removeCart(${index})">
+                onclick="removeCart(${index})"
+            >
                 Remove
             </button>
 
@@ -490,7 +596,6 @@ function updateCart() {
 
 
     updateBudget();
-
 }
 
 
@@ -498,9 +603,11 @@ function increaseQuantity(index) {
 
     if (!cart[index]) return;
 
+
     if (
         userBudget > 0 &&
-        calculateCartTotal() + cart[index].price >
+        calculateCartTotal() +
+        Number(cart[index].price) >
         userBudget
     ) {
 
@@ -517,7 +624,6 @@ function increaseQuantity(index) {
     saveCart();
 
     updateCart();
-
 }
 
 
@@ -533,14 +639,12 @@ function decreaseQuantity(index) {
     } else {
 
         cart.splice(index, 1);
-
     }
 
 
     saveCart();
 
     updateCart();
-
 }
 
 
@@ -555,6 +659,7 @@ function removeCart(index) {
 
     cart.splice(index, 1);
 
+
     saveCart();
 
     updateCart();
@@ -563,26 +668,18 @@ function removeCart(index) {
     showToast(
         name + " removed from cart."
     );
-
 }
 
 
 function calculateCartTotal() {
 
-    let total = 0;
-
-
-    cart.forEach(function (item) {
-
-        total +=
-            item.price *
-            item.quantity;
-
-    });
-
-
-    return total;
-
+    return cart.reduce(
+        (total, item) =>
+            total +
+            Number(item.price) *
+            Number(item.quantity),
+        0
+    );
 }
 
 
@@ -615,7 +712,6 @@ function addWishlist(name) {
     showToast(
         name + " added to wishlist ❤️"
     );
-
 }
 
 
@@ -625,15 +721,15 @@ function saveWishlist() {
         "shopStyleWishlist",
         JSON.stringify(wishlist)
     );
-
 }
 
 
 function updateWishlist() {
 
     const list =
-        document.getElementById("wishlist-list");
-
+        document.getElementById(
+            "wishlist-list"
+        );
 
     if (!list) return;
 
@@ -650,7 +746,7 @@ function updateWishlist() {
     list.innerHTML = "";
 
 
-    wishlist.forEach(function (name) {
+    wishlist.forEach(name => {
 
         const product =
             getProduct(name);
@@ -677,13 +773,15 @@ function updateWishlist() {
 
             <button
                 class="cart-btn"
-                onclick="wishlistToCart('${name}')">
+                onclick="wishlistToCart('${name}')"
+            >
                 🛒 Add to Cart
             </button>
 
             <button
                 class="remove-btn"
-                onclick="removeWishlist('${name}')">
+                onclick="removeWishlist('${name}')"
+            >
                 Remove
             </button>
 
@@ -693,7 +791,6 @@ function updateWishlist() {
         list.appendChild(item);
 
     });
-
 }
 
 
@@ -717,18 +814,15 @@ function wishlistToCart(name) {
         product.name,
         product.price
     );
-
 }
 
 
 function removeWishlist(name) {
 
     wishlist =
-        wishlist.filter(function (item) {
-
-            return item !== name;
-
-        });
+        wishlist.filter(
+            item => item !== name
+        );
 
 
     saveWishlist();
@@ -739,24 +833,18 @@ function removeWishlist(name) {
     showToast(
         "Removed from wishlist."
     );
-
-}
-
-
-/* =====================================================
-   GET PRODUCT
-===================================================== */
-
-function getProduct(name) {
-
-    return products[name] || null;
-
 }
 
 
 /* =====================================================
    PRODUCT MODAL
 ===================================================== */
+
+function getProduct(name) {
+
+    return products[name] || null;
+}
+
 
 function openProduct(
     name,
@@ -788,17 +876,22 @@ function openProduct(
     document.getElementById(
         "modal-price"
     ).textContent =
+        "₹" +
         Number(price).toLocaleString("en-IN");
 
 
     document.getElementById(
         "modal-rating"
-    ).textContent = rating;
+    ).textContent =
+        "⭐".repeat(
+            Math.round(Number(rating))
+        );
 
 
     document.getElementById(
         "modal-description"
-    ).textContent = description;
+    ).textContent =
+        description;
 
 
     const product =
@@ -825,7 +918,6 @@ function openProduct(
 
 
     modal.classList.add("show");
-
 }
 
 
@@ -834,12 +926,11 @@ function closeProduct() {
     document
         .getElementById("product-modal")
         .classList.remove("show");
-
 }
 
 
 /* =====================================================
-   LOGIN MODAL
+   LOGIN / SIGNUP
 ===================================================== */
 
 function openLogin() {
@@ -848,8 +939,8 @@ function openLogin() {
         .getElementById("login-modal")
         .classList.add("show");
 
-    showLogin();
 
+    showLogin();
 }
 
 
@@ -858,65 +949,72 @@ function closeLogin() {
     document
         .getElementById("login-modal")
         .classList.remove("show");
-
 }
 
 
 function showLogin() {
 
-    document.getElementById(
-        "login-form"
-    ).style.display = "block";
+    document
+        .getElementById(
+            "login-form-container"
+        )
+        .style.display = "block";
 
-    document.getElementById(
-        "signup-form"
-    ).style.display = "none";
 
+    document
+        .getElementById(
+            "signup-form-container"
+        )
+        .style.display = "none";
 }
 
 
 function showSignup() {
 
-    document.getElementById(
-        "login-form"
-    ).style.display = "none";
+    document
+        .getElementById(
+            "login-form-container"
+        )
+        .style.display = "none";
 
-    document.getElementById(
-        "signup-form"
-    ).style.display = "block";
 
+    document
+        .getElementById(
+            "signup-form-container"
+        )
+        .style.display = "block";
 }
 
 
-/* =====================================================
-   SIGN UP
-===================================================== */
+function signup(event) {
 
-function signup() {
+    if (event) {
+        event.preventDefault();
+    }
+
 
     const name =
-        document.getElementById(
-            "signup-name"
-        ).value.trim();
+        document
+            .getElementById("signup-name")
+            .value
+            .trim();
 
 
     const username =
-        document.getElementById(
-            "signup-username"
-        ).value.trim();
+        document
+            .getElementById("signup-username")
+            .value
+            .trim();
 
 
     const password =
-        document.getElementById(
-            "signup-password"
-        ).value.trim();
+        document
+            .getElementById("signup-password")
+            .value
+            .trim();
 
 
-    if (
-        name === "" ||
-        username === "" ||
-        password === ""
-    ) {
+    if (!name || !username || !password) {
 
         showToast(
             "Please fill all fields."
@@ -958,13 +1056,9 @@ function signup() {
 
 
     const user = {
-
         name: name,
-
         username: username,
-
         password: password
-
     };
 
 
@@ -990,26 +1084,28 @@ function signup() {
     showToast(
         "Account created successfully!"
     );
-
 }
 
 
-/* =====================================================
-   LOGIN
-===================================================== */
+function login(event) {
 
-function login() {
+    if (event) {
+        event.preventDefault();
+    }
+
 
     const username =
-        document.getElementById(
-            "username"
-        ).value.trim();
+        document
+            .getElementById("username")
+            .value
+            .trim();
 
 
     const password =
-        document.getElementById(
-            "password"
-        ).value.trim();
+        document
+            .getElementById("password")
+            .value
+            .trim();
 
 
     const account =
@@ -1046,11 +1142,8 @@ function login() {
 
 
     loggedUser = {
-
         name: account.name,
-
         username: account.username
-
     };
 
 
@@ -1070,9 +1163,7 @@ function login() {
     );
 
 
-    window.location.hash =
-        "home";
-
+    window.location.hash = "home";
 }
 
 
@@ -1087,15 +1178,18 @@ function updateAccount() {
             "account-name"
         );
 
+
     const username =
         document.getElementById(
             "account-username"
         );
 
+
     const loginButton =
         document.getElementById(
             "account-login-btn"
         );
+
 
     const logoutButton =
         document.getElementById(
@@ -1103,7 +1197,7 @@ function updateAccount() {
         );
 
 
-    if (!name) return;
+    if (!name || !username) return;
 
 
     if (loggedUser) {
@@ -1111,37 +1205,50 @@ function updateAccount() {
         name.textContent =
             loggedUser.name;
 
+
         username.textContent =
             loggedUser.username;
 
-        loginButton.style.display =
-            "none";
 
-        logoutButton.style.display =
-            "block";
+        if (loginButton) {
+            loginButton.style.display =
+                "none";
+        }
+
+
+        if (logoutButton) {
+            logoutButton.style.display =
+                "block";
+        }
 
     } else {
 
         name.textContent =
             "Guest User";
 
+
         username.textContent =
-            "Not logged in";
+            "Please login to view your account.";
 
-        loginButton.style.display =
-            "block";
 
-        logoutButton.style.display =
-            "none";
+        if (loginButton) {
+            loginButton.style.display =
+                "inline-block";
+        }
 
+
+        if (logoutButton) {
+            logoutButton.style.display =
+                "none";
+        }
     }
-
 }
 
 
 function logout() {
 
     loggedUser = null;
+
 
     localStorage.removeItem(
         "shopStyleUser"
@@ -1156,14 +1263,12 @@ function logout() {
     );
 
 
-    window.location.hash =
-        "home";
-
+    window.location.hash = "home";
 }
 
 
 /* =====================================================
-   BUDGET FIX
+   BUDGET
 ===================================================== */
 
 function setBudget() {
@@ -1181,10 +1286,7 @@ function setBudget() {
         Number(input.value);
 
 
-    if (
-        !amount ||
-        amount <= 0
-    ) {
+    if (!amount || amount <= 0) {
 
         showToast(
             "Please enter a valid budget."
@@ -1209,7 +1311,6 @@ function setBudget() {
     showToast(
         "Budget set successfully 💰"
     );
-
 }
 
 
@@ -1220,15 +1321,18 @@ function updateBudget() {
             "budget-total"
         );
 
+
     const budgetSpent =
         document.getElementById(
             "budget-spent"
         );
 
+
     const budgetRemaining =
         document.getElementById(
             "budget-remaining"
         );
+
 
     const budgetMessage =
         document.getElementById(
@@ -1262,6 +1366,7 @@ function updateBudget() {
         budgetRemaining.textContent =
             "₹0";
 
+
         budgetMessage.textContent =
             "Set your budget to start smart shopping.";
 
@@ -1285,12 +1390,10 @@ function updateBudget() {
 
         budgetMessage.textContent =
             "Your cart has exceeded your budget. Remove some products.";
-
     }
 
 
     renderBudgetProducts();
-
 }
 
 
@@ -1308,11 +1411,14 @@ function renderBudgetProducts() {
     container.innerHTML = "";
 
 
-    Object.values(products)
-        .forEach(function (product) {
+    Object.values(products).forEach(
+        product => {
 
             const div =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
+
 
             div.className =
                 "budget-product";
@@ -1332,12 +1438,14 @@ function renderBudgetProducts() {
                 </h4>
 
                 <p>
-                    ₹${product.price.toLocaleString("en-IN")}
+                    ₹${product.price
+                        .toLocaleString("en-IN")}
                 </p>
 
                 <button
                     onclick="addBudgetProduct('${product.name}')"
-                    ${wouldExceed ? "disabled" : ""}>
+                    ${wouldExceed ? "disabled" : ""}
+                >
                     ${
                         wouldExceed
                             ? "Over Budget"
@@ -1349,9 +1457,8 @@ function renderBudgetProducts() {
 
 
             container.appendChild(div);
-
-        });
-
+        }
+    );
 }
 
 
@@ -1377,12 +1484,8 @@ function addBudgetProduct(name) {
     if (!product) return;
 
 
-    const currentTotal =
-        calculateCartTotal();
-
-
     if (
-        currentTotal +
+        calculateCartTotal() +
         product.price >
         userBudget
     ) {
@@ -1399,10 +1502,371 @@ function addBudgetProduct(name) {
         product.name,
         product.price
     );
+}
 
 
-    updateBudget();
+/* =====================================================
+   PRICE COMPARISON
+===================================================== */
 
+function populateComparisonProducts() {
+
+    const select =
+        document.getElementById(
+            "compare-product"
+        );
+
+
+    if (!select) return;
+
+
+    const currentValue =
+        select.value;
+
+
+    if (select.options.length === 1) {
+
+        Object.keys(products).forEach(
+            name => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value = name;
+
+                option.textContent = name;
+
+
+                select.appendChild(option);
+            }
+        );
+    }
+
+
+    if (currentValue) {
+
+        select.value =
+            currentValue;
+    }
+}
+
+
+function compareProduct(name) {
+
+    const select =
+        document.getElementById(
+            "compare-product"
+        );
+
+
+    if (!select) return;
+
+
+    populateComparisonProducts();
+
+
+    select.value = name;
+
+
+    showSection("comparison");
+
+
+    showComparison();
+}
+
+
+function showComparison() {
+
+    const select =
+        document.getElementById(
+            "compare-product"
+        );
+
+
+    const results =
+        document.getElementById(
+            "comparison-results"
+        );
+
+
+    if (!select || !results) return;
+
+
+    const name =
+        select.value;
+
+
+    if (
+        !name ||
+        !comparisonData[name]
+    ) {
+
+        results.innerHTML = `
+
+            <div class="comparison-empty">
+
+                <div>
+                    ⚖️
+                </div>
+
+                <h3>
+                    Choose a product
+                </h3>
+
+                <p>
+                    The comparison table will appear here.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    const data =
+        comparisonData[name];
+
+
+    const prices = [
+
+        {
+            site: "ShopStyle",
+            price: data.shopstyle,
+            url: "",
+            own: true
+        },
+
+        {
+            site: "Amazon",
+            price: data.amazon,
+            url: data.amazonUrl,
+            own: false
+        },
+
+        {
+            site: "Flipkart",
+            price: data.flipkart,
+            url: data.flipkartUrl,
+            own: false
+        }
+
+    ];
+
+
+    const lowestPrice =
+        Math.min(
+            ...prices.map(
+                item => item.price
+            )
+        );
+
+
+    const rows =
+        prices.map(item => {
+
+            const isLowest =
+                item.price ===
+                lowestPrice;
+
+
+            const action =
+                item.own
+
+                    ? `
+                        <span>
+                            Current ShopStyle Price
+                        </span>
+                    `
+
+                    : `
+                        <button
+                            class="comparison-action"
+                            onclick="openComparisonLink('${item.url}')"
+                        >
+                            Search on ${item.site}
+                        </button>
+                    `;
+
+
+            return `
+
+                <tr
+                    class="${
+                        item.own
+                            ? "shopstyle-row"
+                            : ""
+                    }"
+                >
+
+                    <td>
+                        <strong>
+                            ${item.site}
+                        </strong>
+                    </td>
+
+
+                    <td class="comparison-price">
+
+                        ₹${item.price
+                            .toLocaleString("en-IN")}
+
+                    </td>
+
+
+                    <td>
+
+                        ${
+                            isLowest
+
+                                ? `
+                                    <span class="comparison-badge">
+                                        Lowest sample price
+                                    </span>
+                                `
+
+                                : `
+                                    <span class="same-price">
+                                        —
+                                    </span>
+                                `
+                        }
+
+                    </td>
+
+
+                    <td>
+                        ${action}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
+
+
+    const cheaperCompetitors =
+        prices.filter(item =>
+            !item.own &&
+            item.price < data.shopstyle
+        );
+
+
+    let message;
+
+
+    if (cheaperCompetitors.length > 0) {
+
+        const cheapest =
+            cheaperCompetitors.reduce(
+                (a, b) =>
+                    a.price < b.price
+                        ? a
+                        : b
+            );
+
+
+        message = `
+
+            <div class="comparison-badge">
+
+                A lower sample price is available on
+                ${cheapest.site}:
+                ₹${cheapest.price
+                    .toLocaleString("en-IN")}
+
+            </div>
+
+        `;
+
+    } else {
+
+        message = `
+
+            <div class="comparison-badge">
+
+                No lower sample price was found
+                in this demo comparison.
+
+            </div>
+
+        `;
+    }
+
+
+    results.innerHTML = `
+
+        <div class="comparison-title">
+
+            <h3>
+                ${name}
+            </h3>
+
+            <p>
+                ${message}
+            </p>
+
+        </div>
+
+
+        <div class="comparison-table-wrap">
+
+            <table class="comparison-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Shopping Site
+                        </th>
+
+                        <th>
+                            Sample Price
+                        </th>
+
+                        <th>
+                            Price Status
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${rows}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+}
+
+
+function openComparisonLink(url) {
+
+    if (!url) return;
+
+
+    window.open(
+        url,
+        "_blank",
+        "noopener,noreferrer"
+    );
 }
 
 
@@ -1425,20 +1889,17 @@ function checkout() {
     }
 
 
-    const total =
-        calculateCartTotal();
-
-
     document.getElementById(
         "checkout-total"
     ).textContent =
-        total.toLocaleString("en-IN");
+        "₹" +
+        calculateCartTotal()
+            .toLocaleString("en-IN");
 
 
     document
         .getElementById("checkout-modal")
         .classList.add("show");
-
 }
 
 
@@ -1447,12 +1908,11 @@ function closeCheckout() {
     document
         .getElementById("checkout-modal")
         .classList.remove("show");
-
 }
 
 
 /* =====================================================
-   ORDER
+   PLACE ORDER
 ===================================================== */
 
 function placeOrder(event) {
@@ -1470,6 +1930,126 @@ function placeOrder(event) {
     }
 
 
+    const customerName =
+        document
+            .getElementById("customer-name")
+            .value
+            .trim();
+
+
+    const customerPhone =
+        document
+            .getElementById("customer-phone")
+            .value
+            .trim();
+
+
+    const customerAddress =
+        document
+            .getElementById("customer-address")
+            .value
+            .trim();
+
+
+    const customerCity =
+        document
+            .getElementById("customer-city")
+            .value
+            .trim();
+
+
+    const customerPincode =
+        document
+            .getElementById("customer-pincode")
+            .value
+            .trim();
+
+
+    const payment =
+        document
+            .getElementById("payment")
+            .value;
+
+
+    const paymentNames = {
+
+        cod: "Cash on Delivery",
+
+        upi: "UPI - Demo",
+
+        card: "Card - Demo"
+    };
+
+
+    const total =
+        calculateCartTotal();
+
+
+    const orderDetails = {
+
+        orderId:
+            "SS" +
+            Date.now()
+                .toString()
+                .slice(-8),
+
+        orderDate:
+            new Date()
+                .toLocaleString("en-IN"),
+
+        customerName:
+            customerName,
+
+        customerPhone:
+            customerPhone,
+
+        customerAddress:
+            customerAddress,
+
+        customerCity:
+            customerCity,
+
+        customerPincode:
+            customerPincode,
+
+        payment:
+            paymentNames[payment] ||
+            payment,
+
+        items:
+            cart.map(item => ({
+
+                name:
+                    item.name,
+
+                price:
+                    item.price,
+
+                quantity:
+                    item.quantity,
+
+                subtotal:
+                    item.price *
+                    item.quantity
+
+            })),
+
+        total:
+            total
+    };
+
+
+    localStorage.setItem(
+        "shopStyleLastOrder",
+        JSON.stringify(orderDetails)
+    );
+
+
+    displayOrderDetails(
+        orderDetails
+    );
+
+
     closeCheckout();
 
 
@@ -1485,13 +2065,167 @@ function placeOrder(event) {
 
     updateCart();
 
+    updateBudget();
+}
 
-    if (userBudget > 0) {
 
-        updateBudget();
+/* =====================================================
+   DISPLAY ORDER DETAILS
+===================================================== */
 
-    }
+function displayOrderDetails(order) {
 
+    const container =
+        document.getElementById(
+            "order-details"
+        );
+
+
+    if (!container) return;
+
+
+    const itemsHTML =
+        order.items.map(item => `
+
+            <div class="order-product">
+
+                <div>
+
+                    <strong>
+                        ${item.name}
+                    </strong>
+
+                    <p>
+                        Quantity:
+                        ${item.quantity}
+                    </p>
+
+                    <p>
+                        Price:
+                        ₹${item.price
+                            .toLocaleString("en-IN")}
+                    </p>
+
+                </div>
+
+
+                <strong>
+
+                    ₹${item.subtotal
+                        .toLocaleString("en-IN")}
+
+                </strong>
+
+            </div>
+
+        `).join("");
+
+
+    container.innerHTML = `
+
+        <div class="order-success-info">
+
+            <div class="order-id-box">
+
+                🧾 Order ID:
+
+                <strong>
+                    ${order.orderId}
+                </strong>
+
+            </div>
+
+
+            <p>
+
+                <strong>
+                    📅 Order Date:
+                </strong>
+
+                ${order.orderDate}
+
+            </p>
+
+
+            <hr>
+
+
+            <h3>
+                👤 Customer Details
+            </h3>
+
+
+            <div class="customer-details-box">
+
+                <p>
+                    <strong>Name:</strong>
+                    ${order.customerName}
+                </p>
+
+                <p>
+                    <strong>Phone:</strong>
+                    ${order.customerPhone}
+                </p>
+
+                <p>
+                    <strong>Address:</strong>
+                    ${order.customerAddress}
+                </p>
+
+                <p>
+                    <strong>City:</strong>
+                    ${order.customerCity}
+                </p>
+
+                <p>
+                    <strong>Pincode:</strong>
+                    ${order.customerPincode}
+                </p>
+
+            </div>
+
+
+            <hr>
+
+
+            <h3>
+                🛍️ Ordered Products
+            </h3>
+
+
+            ${itemsHTML}
+
+
+            <hr>
+
+
+            <p>
+
+                <strong>
+                    💳 Payment Method:
+                </strong>
+
+                ${order.payment}
+
+            </p>
+
+
+            <div class="order-total">
+
+                <span>
+                    Total Amount
+                </span>
+
+                <strong>
+                    ₹${order.total
+                        .toLocaleString("en-IN")}
+                </strong>
+
+            </div>
+
+        </div>
+
+    `;
 }
 
 
@@ -1504,32 +2238,34 @@ function closeSuccess() {
 
     window.location.hash =
         "home";
-
 }
 
 
 /* =====================================================
-   MODAL CLICK OUTSIDE
+   MODAL EVENTS
 ===================================================== */
 
 window.addEventListener(
     "click",
-    function (event) {
+    function(event) {
 
         const productModal =
             document.getElementById(
                 "product-modal"
             );
 
+
         const loginModal =
             document.getElementById(
                 "login-modal"
             );
 
+
         const checkoutModal =
             document.getElementById(
                 "checkout-modal"
             );
+
 
         const successModal =
             document.getElementById(
@@ -1538,38 +2274,38 @@ window.addEventListener(
 
 
         if (
-            event.target === productModal
+            event.target ===
+            productModal
         ) {
 
             closeProduct();
-
         }
 
 
         if (
-            event.target === loginModal
+            event.target ===
+            loginModal
         ) {
 
             closeLogin();
-
         }
 
 
         if (
-            event.target === checkoutModal
+            event.target ===
+            checkoutModal
         ) {
 
             closeCheckout();
-
         }
 
 
         if (
-            event.target === successModal
+            event.target ===
+            successModal
         ) {
 
             closeSuccess();
-
         }
 
     }
@@ -1577,12 +2313,12 @@ window.addEventListener(
 
 
 /* =====================================================
-   ESCAPE KEY
+   ESC KEY
 ===================================================== */
 
 document.addEventListener(
     "keydown",
-    function (event) {
+    function(event) {
 
         if (event.key === "Escape") {
 
@@ -1593,7 +2329,6 @@ document.addEventListener(
             closeCheckout();
 
             closeSuccess();
-
         }
 
     }
@@ -1606,7 +2341,7 @@ document.addEventListener(
 
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
+    function() {
 
         updateCart();
 
@@ -1615,6 +2350,9 @@ document.addEventListener(
         updateAccount();
 
         updateBudget();
+
+        populateComparisonProducts();
+
 
         console.log(
             "ShopStyle loaded successfully."
